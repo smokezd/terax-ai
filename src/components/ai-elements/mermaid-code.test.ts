@@ -26,11 +26,13 @@ describe("Mermaid code helpers", () => {
 
   it("uses strict Mermaid rendering settings for direct browser rendering", () => {
     expect(getMermaidConfig("dark")).toMatchObject({
+      htmlLabels: false,
       startOnLoad: false,
       securityLevel: "strict",
       theme: "dark",
     });
     expect(getMermaidConfig("light")).toMatchObject({
+      htmlLabels: false,
       startOnLoad: false,
       securityLevel: "strict",
       theme: "default",

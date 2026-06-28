@@ -95,6 +95,7 @@ export function getMermaidConfig(mode: MermaidThemeMode): MermaidConfig {
     startOnLoad: false,
     securityLevel: "strict",
     theme: mode === "dark" ? "dark" : "default",
+    htmlLabels: false,
     maxTextSize: 100_000,
     flowchart: {
       htmlLabels: false,
