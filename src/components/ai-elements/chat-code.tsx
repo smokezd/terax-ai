@@ -8,6 +8,7 @@ import {
   CheckmarkCircle01Icon,
   CopyIcon,
   TerminalIcon,
+  TextWrapIcon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { createContext, memo, useContext, useEffect, useRef, useState } from "react";
@@ -91,17 +92,35 @@ function BlockChrome({
 }: {
   label: string;
   code: string;
-  children: React.ReactNode;
+  children: React.ReactNode | ((wrapLines: boolean) => React.ReactNode);
 }) {
+  const [wrapLines, setWrapLines] = useState(false);
+
   return (
     <div className="not-prose my-2 overflow-hidden rounded-lg border border-border/50 bg-muted/30">
       <div className="flex items-center justify-between gap-2 border-b border-border/40 bg-muted/20 px-3 py-1">
         <span className="font-mono text-[10px] uppercase tracking-wide text-muted-foreground">
           {label}
         </span>
-        <CopyButton text={code} />
+        <div className="flex items-center gap-1">
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="size-6 text-muted-foreground hover:text-foreground"
+            aria-label={wrapLines ? "Disable line wrap" : "Enable line wrap"}
+            aria-pressed={wrapLines}
+            title={wrapLines ? "Disable line wrap" : "Enable line wrap"}
+            onClick={() => setWrapLines((value) => !value)}
+          >
+            <HugeiconsIcon icon={TextWrapIcon} size={12} strokeWidth={1.75} />
+          </Button>
+          <CopyButton text={code} />
+        </div>
       </div>
-      <div className="overflow-x-auto">{children}</div>
+      <div className="overflow-x-auto">
+        {typeof children === "function" ? children(wrapLines) : children}
+      </div>
     </div>
   );
 }
@@ -110,15 +129,24 @@ function FinalizedCodeBlock({ code, lang }: { code: string; lang: string }) {
   if (!isHighlightable(lang)) {
     return (
       <BlockChrome label={lang} code={code}>
-        <pre className="m-0 px-3 py-2.5 font-mono text-[11.5px] leading-relaxed text-foreground">
-          {code}
-        </pre>
+        {(wrapLines) => (
+          <pre
+            className={cn(
+              "m-0 px-3 py-2.5 font-mono text-[11.5px] leading-relaxed text-foreground",
+              wrapLines ? "whitespace-pre-wrap break-words wrap-anywhere" : "whitespace-pre",
+            )}
+          >
+            {code}
+          </pre>
+        )}
       </BlockChrome>
     );
   }
   return (
     <BlockChrome label={lang} code={code}>
-      <HighlightedPre code={code} lang={lang} />
+      {(wrapLines) => (
+        <HighlightedPre code={code} lang={lang} wrapLines={wrapLines} />
+      )}
     </BlockChrome>
   );
 }
@@ -126,9 +154,11 @@ function FinalizedCodeBlock({ code, lang }: { code: string; lang: string }) {
 const HighlightedPre = memo(function HighlightedPre({
   code,
   lang,
+  wrapLines,
 }: {
   code: string;
   lang: string;
+  wrapLines: boolean;
 }) {
   const [nodes, setNodes] = useState<HighlightedNode[] | null>(null);
   const cancelRef = useRef(false);
@@ -153,14 +183,24 @@ const HighlightedPre = memo(function HighlightedPre({
 
   if (!nodes) {
     return (
-      <pre className="m-0 px-3 py-2.5 font-mono text-[11.5px] leading-relaxed text-foreground">
+      <pre
+        className={cn(
+          "m-0 px-3 py-2.5 font-mono text-[11.5px] leading-relaxed text-foreground",
+          wrapLines ? "whitespace-pre-wrap break-words wrap-anywhere" : "whitespace-pre",
+        )}
+      >
         {code}
       </pre>
     );
   }
 
   return (
-    <pre className="m-0 px-3 py-2.5 font-mono text-[11.5px] leading-relaxed text-foreground">
+    <pre
+      className={cn(
+        "m-0 px-3 py-2.5 font-mono text-[11.5px] leading-relaxed text-foreground",
+        wrapLines ? "whitespace-pre-wrap break-words wrap-anywhere" : "whitespace-pre",
+      )}
+    >
       {nodes.map((node, i) =>
         node.kind === "break" ? (
           // eslint-disable-next-line react/no-array-index-key
