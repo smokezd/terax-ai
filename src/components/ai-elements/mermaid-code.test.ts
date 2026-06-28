@@ -2,13 +2,17 @@ import { describe, expect, it } from "vitest";
 
 import {
   clampMermaidFullscreenScale,
+  formatMermaidError,
   getMermaidConfig,
+  getMermaidInitialMode,
   getMermaidInlineSvgClassName,
+  getMermaidKeyboardZoomScale,
   getMermaidModeToggleLabel,
   getMermaidPointerAnchoredTransform,
   isMermaidLanguage,
   MERMAID_FULLSCREEN_MAX_SCALE,
   MERMAID_FULLSCREEN_MIN_SCALE,
+  shouldUseMermaidPreview,
   sanitizeMermaidSvg,
 } from "./mermaid-code";
 
@@ -52,6 +56,25 @@ describe("Mermaid preview actions", () => {
     expect(getMermaidModeToggleLabel("source")).toBe("Preview");
     expect(getMermaidModeToggleLabel("preview")).toBe("Code");
   });
+
+  it("defaults Mermaid code blocks to preview mode", () => {
+    expect(getMermaidInitialMode()).toBe("preview");
+  });
+
+  it("routes only Mermaid aliases through the preview renderer when enabled", () => {
+    expect(shouldUseMermaidPreview({ enableMermaidPreview: true, lang: "mermaid" })).toBe(true);
+    expect(shouldUseMermaidPreview({ enableMermaidPreview: true, lang: "MMD" })).toBe(true);
+    expect(shouldUseMermaidPreview({ enableMermaidPreview: true, lang: "bash" })).toBe(false);
+    expect(shouldUseMermaidPreview({ enableMermaidPreview: false, lang: "mermaid" })).toBe(false);
+  });
+
+  it("keeps invalid Mermaid fallback messages concise and source-safe", () => {
+    const message = formatMermaidError(new Error("Parse error on line 2: expected SEMI"));
+
+    expect(message).toContain("Unable to render Mermaid diagram");
+    expect(message).toContain("Parse error on line 2");
+    expect(message.length).toBeLessThanOrEqual(180);
+  });
 });
 
 describe("Mermaid inline SVG fit", () => {
@@ -76,5 +99,13 @@ describe("Mermaid fullscreen transform", () => {
     );
 
     expect(next).toEqual({ scale: 2, x: -50, y: -25 });
+  });
+
+  it("maps fullscreen keyboard zoom actions into the supported scale range", () => {
+    expect(getMermaidKeyboardZoomScale(1, "+")).toBe(1.2);
+    expect(getMermaidKeyboardZoomScale(1, "-")).toBeCloseTo(1 / 1.2);
+    expect(getMermaidKeyboardZoomScale(2, "0")).toBe(1);
+    expect(getMermaidKeyboardZoomScale(10, "+")).toBe(MERMAID_FULLSCREEN_MAX_SCALE);
+    expect(getMermaidKeyboardZoomScale(0.1, "-")).toBe(MERMAID_FULLSCREEN_MIN_SCALE);
   });
 });

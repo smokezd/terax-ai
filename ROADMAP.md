@@ -118,6 +118,7 @@ The themes below frame every scope decision.
 - [ ] Complete, extensible slash-command and reusable skills system
 - [ ] Approval flow improvements (YOLO / auto-approve, project-scoped policies, per-tool trust)
 - [ ] Persistent terminal processes across app restarts
+- [x] Preview surface expansion: Markdown file preview supports Mermaid / `.mmd` diagrams with code fallback, theme refresh, and fullscreen zoom / pan controls.
 
 ### Longer horizon
 

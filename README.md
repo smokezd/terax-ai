@@ -70,6 +70,7 @@ Terax is a lightweight open-source terminal-first AI-native development environm
 ### Code editor
 
 - CodeMirror 6 (supports all popular languages - TS/JS, Rust, Python, Go, C/C++, Java, HTML/CSS, JSON, Markdown, etc.)
+- Markdown file preview renders Mermaid and `.mmd` fenced diagrams by default, with source fallback and fullscreen inspect controls.
 - Inline AI autocomplete with local model support
 - AI edit diffs, accept or reject hunk by hunk
 - Opt-in language server support with diagnostics, navigation, completion, formatting, and custom servers

@@ -57,6 +57,39 @@ export function isMermaidLanguage(lang: string | null | undefined): boolean {
   return MERMAID_LANGUAGES.has((lang ?? "").trim().toLowerCase());
 }
 
+export function getMermaidKeyboardZoomScale(
+  currentScale: number,
+  key: string,
+): number {
+  if (key === "0") {
+    return 1;
+  }
+
+  if (key === "+" || key === "=") {
+    return clampMermaidFullscreenScale(currentScale * MERMAID_FULLSCREEN_ZOOM_STEP);
+  }
+
+  if (key === "-") {
+    return clampMermaidFullscreenScale(currentScale / MERMAID_FULLSCREEN_ZOOM_STEP);
+  }
+
+  return clampMermaidFullscreenScale(currentScale);
+}
+
+export function shouldUseMermaidPreview({
+  enableMermaidPreview,
+  lang,
+}: {
+  enableMermaidPreview: boolean;
+  lang: string | null | undefined;
+}): boolean {
+  return enableMermaidPreview && isMermaidLanguage(lang);
+}
+
+export function getMermaidInitialMode(): MermaidMode {
+  return "preview";
+}
+
 export function getMermaidConfig(mode: MermaidThemeMode): MermaidConfig {
   return {
     startOnLoad: false,
@@ -109,7 +142,7 @@ export function getMermaidPointerAnchoredTransform(
   };
 }
 
-function formatMermaidError(error: unknown): string {
+export function formatMermaidError(error: unknown): string {
   const normalized =
     error instanceof Error ? error.message : typeof error === "string" ? error : "";
 
@@ -117,7 +150,9 @@ function formatMermaidError(error: unknown): string {
     return "Unable to render Mermaid diagram.";
   }
 
-  return normalized.length > 240 ? `${normalized.slice(0, 237)}...` : normalized;
+  const detail = normalized.trim().replace(/\s+/g, " ");
+  const message = `Unable to render Mermaid diagram. ${detail}`;
+  return message.length > 180 ? `${message.slice(0, 177)}...` : message;
 }
 
 function useNearViewport(rootMargin = "600px"): [boolean, (node: HTMLDivElement | null) => void] {
@@ -168,7 +203,7 @@ export function MermaidCodeBlock({
 }) {
   const stableId = useId().replace(/[^a-zA-Z0-9_-]/g, "");
   const { resolvedMode } = useTheme();
-  const [mode, setMode] = useState<MermaidMode>("preview");
+  const [mode, setMode] = useState<MermaidMode>(getMermaidInitialMode());
   const [state, setState] = useState<MermaidRenderState>({ kind: "idle" });
   const [nearViewport, setViewportNode] = useNearViewport();
   const [fullscreenOpen, setFullscreenOpen] = useState(false);
