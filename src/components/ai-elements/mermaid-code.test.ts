@@ -80,7 +80,7 @@ describe("Mermaid preview actions", () => {
 describe("Mermaid inline SVG fit", () => {
   it("uses a strict viewport fit class while preserving SVG scaling", () => {
     expect(getMermaidInlineSvgClassName()).toContain("[&_svg]:max-w-full");
-    expect(getMermaidInlineSvgClassName()).toContain("[&_svg]:h-auto");
+    expect(getMermaidInlineSvgClassName()).toContain("[&_svg]:max-h-[70vh]");
     expect(getMermaidInlineSvgClassName()).toContain("[&_svg]:mx-auto");
   });
 });
@@ -108,4 +108,11 @@ describe("Mermaid fullscreen transform", () => {
     expect(getMermaidKeyboardZoomScale(10, "+")).toBe(MERMAID_FULLSCREEN_MAX_SCALE);
     expect(getMermaidKeyboardZoomScale(0.1, "-")).toBe(MERMAID_FULLSCREEN_MIN_SCALE);
   });
+});
+it("keeps wide inline diagrams readable instead of collapsing them vertically", () => {
+  const className = getMermaidInlineSvgClassName();
+
+  expect(className).toContain("min-h-[240px]");
+  expect(className).toContain("[&_svg]:max-h-[70vh]");
+  expect(className).not.toContain("[&_svg]:h-auto");
 });

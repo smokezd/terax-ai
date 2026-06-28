@@ -115,8 +115,8 @@ export function getMermaidModeToggleLabel(mode: MermaidMode): "Preview" | "Code"
 
 export function getMermaidInlineSvgClassName(): string {
   return cn(
-    "flex justify-center overflow-x-hidden",
-    "[&_svg]:h-auto [&_svg]:max-w-full [&_svg]:mx-auto",
+    "flex min-h-[240px] items-center justify-center overflow-x-hidden overflow-y-auto",
+    "[&_svg]:mx-auto [&_svg]:max-h-[70vh] [&_svg]:max-w-full",
   );
 }
 
