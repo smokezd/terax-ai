@@ -8,18 +8,9 @@ import {
   useRef,
   useState,
 } from "react";
-import type { PointerEvent as ReactPointerEvent, WheelEvent } from "react";
 import type { MermaidConfig } from "mermaid";
 
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { useTheme } from "@/modules/theme";
 
@@ -155,6 +146,21 @@ export function formatMermaidError(error: unknown): string {
   const detail = normalized.trim().replace(/\s+/g, " ");
   const message = `Unable to render Mermaid diagram. ${detail}`;
   return message.length > 180 ? `${message.slice(0, 177)}...` : message;
+}
+
+export function getMermaidFullscreenSurfaceClassName(): string {
+  return cn(
+    "fixed inset-0 z-50 flex flex-col bg-background text-foreground",
+    "data-[state=open]:animate-in data-[state=closed]:animate-out",
+    "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+  );
+}
+
+export function getMermaidFullscreenViewportClassName(): string {
+  return cn(
+    "min-h-0 flex-1 overflow-hidden bg-background",
+    "[&_svg_foreignObject_p]:m-0 [&_svg_foreignObject_p]:leading-normal [&_svg_foreignObject_p]:text-inherit",
+  );
 }
 
 function useNearViewport(rootMargin = "600px"): [boolean, (node: HTMLDivElement | null) => void] {
@@ -319,6 +325,7 @@ function MermaidModeToggle({
   );
 }
 
+
 function MermaidFullscreenDialog({
   open,
   onOpenChange,
@@ -331,162 +338,147 @@ function MermaidFullscreenDialog({
   const [transform, setTransform] = useState<MermaidFullscreenTransform>(
     MERMAID_DEFAULT_TRANSFORM,
   );
-  const dragRef = useRef<{ pointerId: number; x: number; y: number } | null>(null);
-
-  const reset = useCallback(() => {
-    setTransform(MERMAID_DEFAULT_TRANSFORM);
-  }, []);
+  const [drag, setDrag] = useState<{ x: number; y: number } | null>(null);
 
   useEffect(() => {
     if (open) {
-      reset();
+      setTransform(MERMAID_DEFAULT_TRANSFORM);
+      setDrag(null);
     }
-  }, [open, reset, svg]);
+  }, [open]);
 
-  const zoomFromCenter = useCallback((factor: number) => {
-    setTransform((current) => ({
-      ...current,
-      scale: clampMermaidFullscreenScale(current.scale * factor),
-    }));
+  const reset = useCallback(() => {
+    setTransform(MERMAID_DEFAULT_TRANSFORM);
+    setDrag(null);
   }, []);
 
-  const onWheel = useCallback((event: WheelEvent<HTMLDivElement>) => {
-    event.preventDefault();
-    const rect = event.currentTarget.getBoundingClientRect();
-    const pointer = {
-      x: event.clientX - rect.left,
-      y: event.clientY - rect.top,
-    };
-    const factor = event.deltaY < 0 ? MERMAID_FULLSCREEN_ZOOM_STEP : 1 / MERMAID_FULLSCREEN_ZOOM_STEP;
-
-    setTransform((current) =>
-      getMermaidPointerAnchoredTransform(current, current.scale * factor, pointer),
-    );
-  }, []);
-
-  const onPointerDown = useCallback((event: ReactPointerEvent<HTMLDivElement>) => {
-    if (event.button !== 2) {
-      return;
-    }
-
-    event.preventDefault();
-    event.currentTarget.setPointerCapture(event.pointerId);
-    dragRef.current = {
-      pointerId: event.pointerId,
-      x: event.clientX,
-      y: event.clientY,
-    };
-  }, []);
-
-  const onPointerMove = useCallback((event: ReactPointerEvent<HTMLDivElement>) => {
-    const drag = dragRef.current;
-    if (!drag || drag.pointerId !== event.pointerId) {
-      return;
-    }
-
-    event.preventDefault();
-    const dx = event.clientX - drag.x;
-    const dy = event.clientY - drag.y;
-    dragRef.current = { pointerId: event.pointerId, x: event.clientX, y: event.clientY };
-    setTransform((current) => ({
-      ...current,
-      x: current.x + dx,
-      y: current.y + dy,
-    }));
-  }, []);
-
-  const stopDrag = useCallback((event: ReactPointerEvent<HTMLDivElement>) => {
-    if (dragRef.current?.pointerId === event.pointerId) {
-      dragRef.current = null;
-    }
-  }, []);
+  const close = useCallback(() => {
+    onOpenChange(false);
+  }, [onOpenChange]);
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogTrigger asChild>
-        <Button
-          aria-label="Open Mermaid fullscreen preview"
-          className="h-5 px-1.5 text-[10px]"
-          size="sm"
-          type="button"
-          variant="ghost"
-        >
-          Fullscreen
-        </Button>
-      </DialogTrigger>
-      <DialogContent
-        className="flex h-[min(92vh,900px)] max-w-[min(94vw,1200px)] flex-col gap-3 p-4"
-        onKeyDown={(event) => {
-          if (event.key === "+" || event.key === "=") {
-            event.preventDefault();
-            zoomFromCenter(MERMAID_FULLSCREEN_ZOOM_STEP);
-          } else if (event.key === "-") {
-            event.preventDefault();
-            zoomFromCenter(1 / MERMAID_FULLSCREEN_ZOOM_STEP);
-          } else if (event.key === "0") {
-            event.preventDefault();
-            reset();
-          }
-        }}
+    <>
+      <Button
+        className="h-5 px-1.5 text-[10px]"
+        onClick={() => onOpenChange(true)}
+        type="button"
+        variant="ghost"
       >
-        <DialogHeader className="space-y-1">
-          <DialogTitle className="text-sm">Mermaid preview</DialogTitle>
-          <DialogDescription className="sr-only">
-            Inspect the rendered Mermaid diagram. Use mouse wheel or plus and minus keys to
-            zoom, right-button drag to pan, and Escape to close.
-          </DialogDescription>
-        </DialogHeader>
-        <div className="flex items-center gap-1">
-          <Button
-            className="h-7 px-2 text-xs"
-            onClick={() => zoomFromCenter(MERMAID_FULLSCREEN_ZOOM_STEP)}
-            size="sm"
-            type="button"
-            variant="outline"
-          >
-            +
-          </Button>
-          <Button
-            className="h-7 px-2 text-xs"
-            onClick={() => zoomFromCenter(1 / MERMAID_FULLSCREEN_ZOOM_STEP)}
-            size="sm"
-            type="button"
-            variant="outline"
-          >
-            -
-          </Button>
-          <Button
-            className="h-7 px-2 text-xs"
-            onClick={reset}
-            size="sm"
-            type="button"
-            variant="outline"
-          >
-            Reset
-          </Button>
-        </div>
+        Fullscreen
+      </Button>
+
+      {open ? (
         <div
-          className="relative min-h-0 flex-1 overflow-hidden rounded-md border border-border bg-background"
-          onContextMenu={(event) => event.preventDefault()}
-          onPointerCancel={stopDrag}
-          onPointerDown={onPointerDown}
-          onPointerLeave={stopDrag}
-          onPointerMove={onPointerMove}
-          onPointerUp={stopDrag}
-          onWheel={onWheel}
+          aria-label="Mermaid preview"
+          aria-modal="true"
+          className={getMermaidFullscreenSurfaceClassName()}
+          role="dialog"
         >
+          <div className="flex h-12 shrink-0 items-center justify-between border-border/60 border-b px-4">
+            <div className="font-medium text-muted-foreground text-sm">
+              Mermaid preview
+            </div>
+            <div className="flex items-center gap-1">
+              <Button
+                aria-label="Zoom out"
+                className="h-7 px-2 text-xs"
+                onClick={() =>
+                  setTransform((current) => ({
+                    ...current,
+                    scale: getMermaidKeyboardZoomScale(current.scale, "out"),
+                  }))
+                }
+                type="button"
+                variant="outline"
+              >
+                -
+              </Button>
+              <Button
+                aria-label="Zoom in"
+                className="h-7 px-2 text-xs"
+                onClick={() =>
+                  setTransform((current) => ({
+                    ...current,
+                    scale: getMermaidKeyboardZoomScale(current.scale, "in"),
+                  }))
+                }
+                type="button"
+                variant="outline"
+              >
+                +
+              </Button>
+              <Button
+                className="h-7 px-2 text-xs"
+                onClick={reset}
+                type="button"
+                variant="outline"
+              >
+                Reset
+              </Button>
+              <Button
+                aria-label="Close Mermaid preview"
+                className="h-7 px-2 text-xs"
+                onClick={close}
+                type="button"
+                variant="ghost"
+              >
+                Close
+              </Button>
+            </div>
+          </div>
+
           <div
-            className={cn(
-              "absolute left-1/2 top-1/2 max-w-full origin-center",
-              "[&_svg]:h-auto [&_svg]:max-h-[75vh] [&_svg]:max-w-[85vw]",
-            )}
-            dangerouslySetInnerHTML={{ __html: svg }}
-            style={{
-              transform: `translate(calc(-50% + ${transform.x}px), calc(-50% + ${transform.y}px)) scale(${transform.scale})`,
+            className={getMermaidFullscreenViewportClassName()}
+            onContextMenu={(event) => event.preventDefault()}
+            onPointerDown={(event) => {
+              if (event.button !== 2) {
+                return;
+              }
+              event.currentTarget.setPointerCapture(event.pointerId);
+              setDrag({ x: event.clientX, y: event.clientY });
             }}
-          />
+            onPointerMove={(event) => {
+              if (!drag) {
+                return;
+              }
+              const deltaX = event.clientX - drag.x;
+              const deltaY = event.clientY - drag.y;
+              setTransform((current) => ({
+                ...current,
+                x: current.x + deltaX,
+                y: current.y + deltaY,
+              }));
+              setDrag({ x: event.clientX, y: event.clientY });
+            }}
+            onPointerUp={() => setDrag(null)}
+            onWheel={(event) => {
+              event.preventDefault();
+              const nextScale = clampMermaidFullscreenScale(
+                transform.scale *
+                  (event.deltaY < 0
+                    ? MERMAID_FULLSCREEN_ZOOM_STEP
+                    : 1 / MERMAID_FULLSCREEN_ZOOM_STEP),
+              );
+              setTransform((current) =>
+                getMermaidPointerAnchoredTransform(current, nextScale, {
+                  x: event.clientX,
+                  y: event.clientY,
+                }),
+              );
+            }}
+          >
+            <div className="flex h-full w-full items-center justify-center p-4">
+              <div
+                className="max-h-full max-w-full origin-center [&_svg]:block [&_svg]:h-auto [&_svg]:max-h-[calc(100vh-6rem)] [&_svg]:max-w-[calc(100vw-2rem)] [&_svg]:w-auto"
+                style={{
+                  transform: `translate(${transform.x}px, ${transform.y}px) scale(${transform.scale})`,
+                }}
+                dangerouslySetInnerHTML={{ __html: svg }}
+              />
+            </div>
+          </div>
         </div>
-      </DialogContent>
-    </Dialog>
+      ) : null}
+    </>
   );
 }
