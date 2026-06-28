@@ -22,9 +22,8 @@ Primary files likely involved:
 - Documentation updates are applied or explicitly judged unnecessary for README, ROADMAP, and TERAX. [R10]
 - `pnpm lint`, `pnpm check-types`, and `pnpm test` pass before completion. [R10]
 ## Done summary
-TBD
-
+Added Mermaid preview regression coverage for routing/default preview/error fallback/fullscreen zoom helpers, reused the routing helper in MarkdownCode, and documented Markdown Mermaid preview scope, security, lazy-loading, theme refresh, and manual verification notes.
 ## Evidence
-- Commits:
-- Tests:
+- Commits: db7a0bf94314544a6e651c739a2c189cf8f865c7
+- Tests: pnpm test src/components/ai-elements/mermaid-code.test.ts, pnpm check-types, pnpm test, pnpm size, pnpm lint (fails on unrelated pre-existing AI/settings/shortcuts diagnostics)
 - PRs:
