@@ -12,6 +12,7 @@ import {
   getMermaidKeyboardZoomScale,
   getMermaidModeToggleLabel,
   getMermaidPointerAnchoredTransform,
+  getMermaidPointerAnchoredTransformFromRect,
   isMermaidLanguage,
   MERMAID_FULLSCREEN_MAX_SCALE,
   MERMAID_FULLSCREEN_MIN_SCALE,
@@ -156,4 +157,29 @@ it("keeps the fullscreen zoom anchor fixed when the transform origin is offset",
       { x: 100, y: 100 },
     ),
   ).toEqual({ scale: 2, x: -30, y: 15 });
+});
+
+it("keeps the actual transformed SVG point fixed while zooming", () => {
+  const pointer = { x: 1055, y: 215 };
+  const rect = { left: 1055, top: 215 };
+
+  expect(
+    getMermaidPointerAnchoredTransformFromRect(
+      { scale: 1, x: 0, y: 0 },
+      1.2,
+      pointer,
+      rect,
+    ),
+  ).toEqual({ scale: 1.2, x: 0, y: 0 });
+
+  const anchored = getMermaidPointerAnchoredTransformFromRect(
+    { scale: 1, x: 0, y: 0 },
+    1.2,
+    { x: 1155, y: 265 },
+    rect,
+  );
+
+  expect(anchored.scale).toBeCloseTo(1.2);
+  expect(anchored.x).toBeCloseTo(-20);
+  expect(anchored.y).toBeCloseTo(-10);
 });

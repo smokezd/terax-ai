@@ -136,6 +136,22 @@ export function getMermaidPointerAnchoredTransform(
   };
 }
 
+export function getMermaidPointerAnchoredTransformFromRect(
+  current: MermaidFullscreenTransform,
+  nextScale: number,
+  pointer: { x: number; y: number },
+  rect: { left: number; top: number },
+): MermaidFullscreenTransform {
+  const scale = clampMermaidFullscreenScale(nextScale);
+  const scaleRatio = scale / current.scale;
+
+  return {
+    scale,
+    x: current.x + (pointer.x - rect.left) * (1 - scaleRatio),
+    y: current.y + (pointer.y - rect.top) * (1 - scaleRatio),
+  };
+}
+
 export function formatMermaidError(error: unknown): string {
   const normalized =
     error instanceof Error ? error.message : typeof error === "string" ? error : "";
@@ -347,6 +363,7 @@ function MermaidFullscreenDialog({
     MERMAID_DEFAULT_TRANSFORM,
   );
   const [drag, setDrag] = useState<{ x: number; y: number } | null>(null);
+  const svgHostRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (open) {
@@ -461,27 +478,36 @@ function MermaidFullscreenDialog({
             onPointerUp={() => setDrag(null)}
             onWheel={(event) => {
               event.preventDefault();
-              const nextScale = clampMermaidFullscreenScale(
-                transform.scale *
-                  (event.deltaY < 0
-                    ? MERMAID_FULLSCREEN_ZOOM_STEP
-                    : 1 / MERMAID_FULLSCREEN_ZOOM_STEP),
-              );
-              const viewportRect = event.currentTarget.getBoundingClientRect();
-              setTransform((current) =>
-                getMermaidPointerAnchoredTransform(current, nextScale, {
-                  x: event.clientX,
-                  y: event.clientY,
-                }, {
-                  x: viewportRect.left,
-                  y: viewportRect.top,
-                }),
-              );
+              const svgHostRect = svgHostRef.current?.getBoundingClientRect();
+
+              if (!svgHostRect) {
+                return;
+              }
+
+              setTransform((current) => {
+                const nextScale = clampMermaidFullscreenScale(
+                  current.scale *
+                    (event.deltaY < 0
+                      ? MERMAID_FULLSCREEN_ZOOM_STEP
+                      : 1 / MERMAID_FULLSCREEN_ZOOM_STEP),
+                );
+
+                return getMermaidPointerAnchoredTransformFromRect(
+                  current,
+                  nextScale,
+                  {
+                    x: event.clientX,
+                    y: event.clientY,
+                  },
+                  svgHostRect,
+                );
+              });
             }}
           >
             <div className="flex h-full w-full items-center justify-center p-4">
               <div
                 className={getMermaidFullscreenSvgClassName()}
+                ref={svgHostRef}
                 style={{
                   transform: `translate(${transform.x}px, ${transform.y}px) scale(${transform.scale})`,
                 }}
