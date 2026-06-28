@@ -8,6 +8,7 @@ import {
   useRef,
   useState,
 } from "react";
+import type { KeyboardEvent } from "react";
 import type { MermaidConfig } from "mermaid";
 
 import { Button } from "@/components/ui/button";
@@ -121,6 +122,26 @@ export function getMermaidFullscreenButtonZoomScale(
     currentScale,
     direction === "in" ? "+" : "-",
   );
+}
+
+export function getMermaidFullscreenKeyboardTransform(
+  current: MermaidFullscreenTransform,
+  key: string,
+): MermaidFullscreenTransform | null {
+  if (key === "0") {
+    return MERMAID_DEFAULT_TRANSFORM;
+  }
+
+  const nextScale = getMermaidKeyboardZoomScale(current.scale, key);
+
+  if (nextScale === current.scale) {
+    return null;
+  }
+
+  return {
+    ...current,
+    scale: nextScale,
+  };
 }
 
 export function clampMermaidFullscreenScale(scale: number): number {
@@ -374,11 +395,13 @@ function MermaidFullscreenDialog({
   );
   const [drag, setDrag] = useState<{ x: number; y: number } | null>(null);
   const svgHostRef = useRef<HTMLDivElement | null>(null);
+  const dialogRootRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (open) {
       setTransform(MERMAID_DEFAULT_TRANSFORM);
       setDrag(null);
+      dialogRootRef.current?.focus();
     }
   }, [open]);
 
@@ -390,6 +413,18 @@ function MermaidFullscreenDialog({
   const close = useCallback(() => {
     onOpenChange(false);
   }, [onOpenChange]);
+
+  const handleKeyDown = useCallback((event: KeyboardEvent<HTMLDivElement>) => {
+    const nextTransform = getMermaidFullscreenKeyboardTransform(
+      transform,
+      event.key,
+    );
+
+    if (!nextTransform) return;
+
+    event.preventDefault();
+    setTransform(nextTransform);
+  }, [transform]);
 
   return (
     <>
@@ -407,7 +442,10 @@ function MermaidFullscreenDialog({
           aria-label="Mermaid preview"
           aria-modal="true"
           className={getMermaidFullscreenSurfaceClassName()}
+          onKeyDown={handleKeyDown}
+          ref={dialogRootRef}
           role="dialog"
+          tabIndex={-1}
         >
           <div className="flex h-12 shrink-0 items-center justify-between border-border/60 border-b px-4">
             <div className="font-medium text-muted-foreground text-sm">
