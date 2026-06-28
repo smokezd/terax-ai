@@ -113,6 +113,16 @@ export function getMermaidInlineSvgClassName(): string {
   );
 }
 
+export function getMermaidFullscreenButtonZoomScale(
+  currentScale: number,
+  direction: "in" | "out",
+): number {
+  return getMermaidKeyboardZoomScale(
+    currentScale,
+    direction === "in" ? "+" : "-",
+  );
+}
+
 export function clampMermaidFullscreenScale(scale: number): number {
   return Math.min(
     MERMAID_FULLSCREEN_MAX_SCALE,
@@ -410,7 +420,10 @@ function MermaidFullscreenDialog({
                 onClick={() =>
                   setTransform((current) => ({
                     ...current,
-                    scale: getMermaidKeyboardZoomScale(current.scale, "out"),
+                    scale: getMermaidFullscreenButtonZoomScale(
+                      current.scale,
+                      "out",
+                    ),
                   }))
                 }
                 type="button"
@@ -424,7 +437,10 @@ function MermaidFullscreenDialog({
                 onClick={() =>
                   setTransform((current) => ({
                     ...current,
-                    scale: getMermaidKeyboardZoomScale(current.scale, "in"),
+                    scale: getMermaidFullscreenButtonZoomScale(
+                      current.scale,
+                      "in",
+                    ),
                   }))
                 }
                 type="button"
