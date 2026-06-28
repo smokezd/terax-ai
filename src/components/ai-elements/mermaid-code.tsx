@@ -117,6 +117,7 @@ export function getMermaidInlineSvgClassName(): string {
   return cn(
     "flex min-h-[240px] items-center justify-center overflow-x-hidden overflow-y-auto",
     "[&_svg]:mx-auto [&_svg]:max-h-[70vh] [&_svg]:max-w-full",
+    "[&_svg_foreignObject_p]:m-0 [&_svg_foreignObject_p]:leading-normal [&_svg_foreignObject_p]:text-inherit",
   );
 }
 

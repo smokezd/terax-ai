@@ -116,3 +116,11 @@ it("keeps wide inline diagrams readable instead of collapsing them vertically", 
   expect(className).toContain("[&_svg]:max-h-[70vh]");
   expect(className).not.toContain("[&_svg]:h-auto");
 });
+
+it("isolates Mermaid foreignObject labels from Markdown prose styles", () => {
+  const className = getMermaidInlineSvgClassName();
+
+  expect(className).toContain("[&_svg_foreignObject_p]:m-0");
+  expect(className).toContain("[&_svg_foreignObject_p]:leading-normal");
+  expect(className).toContain("[&_svg_foreignObject_p]:text-inherit");
+});
