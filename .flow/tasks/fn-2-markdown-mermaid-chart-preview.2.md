@@ -25,9 +25,8 @@ Primary files likely involved:
 - Right-button drag repositions the chart in fullscreen and native context-menu suppression is limited to that interaction viewport. [R6]
 - Fullscreen rendering remains theme-appropriate when opened from light and dark themes. [R7]
 ## Done summary
-TBD
-
+Added Mermaid Preview/Code block actions, strict inline SVG fit behavior, and a modal fullscreen inspector with bounded zoom, reset, keyboard shortcuts, wheel suppression in the viewport, and right-button drag panning.
 ## Evidence
-- Commits:
-- Tests:
+- Commits: 08b61d1be48fa3d896ac024fd72e89d60762e34f
+- Tests: pnpm vitest run src/components/ai-elements/mermaid-code.test.ts (pass), pnpm check-types (pass), pnpm test (pass), pnpm lint (fails: existing unrelated diagnostics outside Mermaid files)
 - PRs:
