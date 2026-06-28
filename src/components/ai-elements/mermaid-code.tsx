@@ -144,6 +144,26 @@ export function getMermaidFullscreenKeyboardTransform(
   };
 }
 
+export function getMermaidFullscreenKeyboardAction(
+  current: MermaidFullscreenTransform,
+  key: string,
+):
+  | { kind: "close" }
+  | { kind: "transform"; transform: MermaidFullscreenTransform }
+  | null {
+  if (key === "Escape") {
+    return { kind: "close" };
+  }
+
+  const transform = getMermaidFullscreenKeyboardTransform(current, key);
+
+  if (!transform) {
+    return null;
+  }
+
+  return { kind: "transform", transform };
+}
+
 export function clampMermaidFullscreenScale(scale: number): number {
   return Math.min(
     MERMAID_FULLSCREEN_MAX_SCALE,
@@ -415,16 +435,19 @@ function MermaidFullscreenDialog({
   }, [onOpenChange]);
 
   const handleKeyDown = useCallback((event: KeyboardEvent<HTMLDivElement>) => {
-    const nextTransform = getMermaidFullscreenKeyboardTransform(
-      transform,
-      event.key,
-    );
+    const action = getMermaidFullscreenKeyboardAction(transform, event.key);
 
-    if (!nextTransform) return;
+    if (!action) return;
 
     event.preventDefault();
-    setTransform(nextTransform);
-  }, [transform]);
+
+    if (action.kind === "close") {
+      close();
+      return;
+    }
+
+    setTransform(action.transform);
+  }, [close, transform]);
 
   return (
     <>

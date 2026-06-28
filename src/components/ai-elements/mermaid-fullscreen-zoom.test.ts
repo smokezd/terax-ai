@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  getMermaidFullscreenKeyboardAction,
   getMermaidFullscreenButtonZoomScale,
   getMermaidFullscreenKeyboardTransform,
 } from "./mermaid-code";
@@ -24,5 +25,10 @@ describe("Mermaid fullscreen zoom controls", () => {
     expect(
       getMermaidFullscreenKeyboardTransform({ scale: 1, x: 10, y: 20 }, "a"),
     ).toBeNull();
+  });
+  it("closes fullscreen mode when Escape is pressed", () => {
+    expect(
+      getMermaidFullscreenKeyboardAction({ scale: 1, x: 10, y: 20 }, "Escape"),
+    ).toEqual({ kind: "close" });
   });
 });
