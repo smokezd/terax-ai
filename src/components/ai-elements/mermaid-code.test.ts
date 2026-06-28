@@ -6,6 +6,7 @@ import {
   getMermaidConfig,
   getMermaidInitialMode,
   getMermaidFullscreenSurfaceClassName,
+  getMermaidFullscreenSvgClassName,
   getMermaidFullscreenViewportClassName,
   getMermaidInlineSvgClassName,
   getMermaidKeyboardZoomScale,
@@ -131,6 +132,7 @@ it("isolates Mermaid foreignObject labels from Markdown prose styles", () => {
 
 it("uses a true viewport fullscreen surface for Mermaid charts", () => {
   const surfaceClassName = getMermaidFullscreenSurfaceClassName();
+  const svgClassName = getMermaidFullscreenSvgClassName();
   const viewportClassName = getMermaidFullscreenViewportClassName();
 
   expect(surfaceClassName).toContain("fixed");
@@ -139,4 +141,8 @@ it("uses a true viewport fullscreen surface for Mermaid charts", () => {
   expect(surfaceClassName).not.toContain("max-w-");
   expect(viewportClassName).toContain("flex-1");
   expect(viewportClassName).toContain("overflow-hidden");
+  expect(svgClassName).toContain("h-full");
+  expect(svgClassName).toContain("w-full");
+  expect(svgClassName).toContain("[&_svg]:h-full");
+  expect(svgClassName).toContain("[&_svg]:w-full");
 });

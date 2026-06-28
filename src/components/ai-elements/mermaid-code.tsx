@@ -163,6 +163,13 @@ export function getMermaidFullscreenViewportClassName(): string {
   );
 }
 
+export function getMermaidFullscreenSvgClassName(): string {
+  return cn(
+    "flex h-full w-full origin-center items-center justify-center",
+    "[&_svg]:block [&_svg]:h-full [&_svg]:max-h-full [&_svg]:max-w-full [&_svg]:w-full",
+  );
+}
+
 function useNearViewport(rootMargin = "600px"): [boolean, (node: HTMLDivElement | null) => void] {
   const observerRef = useRef<IntersectionObserver | null>(null);
   const [nearViewport, setNearViewport] = useState(false);
@@ -469,7 +476,7 @@ function MermaidFullscreenDialog({
           >
             <div className="flex h-full w-full items-center justify-center p-4">
               <div
-                className="max-h-full max-w-full origin-center [&_svg]:block [&_svg]:h-auto [&_svg]:max-h-[calc(100vh-6rem)] [&_svg]:max-w-[calc(100vw-2rem)] [&_svg]:w-auto"
+                className={getMermaidFullscreenSvgClassName()}
                 style={{
                   transform: `translate(${transform.x}px, ${transform.y}px) scale(${transform.scale})`,
                 }}
