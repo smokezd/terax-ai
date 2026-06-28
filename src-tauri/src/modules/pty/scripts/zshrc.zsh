@@ -6,9 +6,20 @@
 # zsh, so we shadow $? into `_terax_ret`.
 
 {
+  if (( ${+ZDOTDIR} )); then
+    _terax_restore_zdotdir="$ZDOTDIR"
+  else
+    unset _terax_restore_zdotdir
+  fi
   _terax_user_zdotdir="${TERAX_USER_ZDOTDIR:-$HOME}"
+  ZDOTDIR="$_terax_user_zdotdir"
   [ -f "$_terax_user_zdotdir/.zshrc" ] && source "$_terax_user_zdotdir/.zshrc"
-  unset _terax_user_zdotdir
+  if (( ${+_terax_restore_zdotdir} )); then
+    ZDOTDIR="$_terax_restore_zdotdir"
+  else
+    unset ZDOTDIR
+  fi
+  unset _terax_restore_zdotdir _terax_user_zdotdir
 }
 
 if [[ -n "$TERAX_CLI" && -x "$TERAX_CLI" ]]; then
