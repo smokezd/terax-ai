@@ -48,7 +48,7 @@ const MERMAID_DEFAULT_TRANSFORM: MermaidFullscreenTransform = {
 };
 
 const MERMAID_LANGUAGES = new Set(["mermaid", "mmd"]);
-const UNSAFE_TAGS = /<\/?(script|foreignObject|iframe|object|embed)\b[^>]*>/gi;
+const UNSAFE_TAGS = /<\/?(script|iframe|object|embed)\b[^>]*>/gi;
 const UNSAFE_ATTRIBUTES = /\s+on[a-z]+\s*=\s*(["']).*?\1/gi;
 const UNSAFE_URL_ATTRIBUTES =
   /\s+(href|xlink:href|src)\s*=\s*(["'])(?:javascript:|data:|https?:|\/\/)[\s\S]*?\2/gi;
