@@ -1,0 +1,13 @@
+{
+  "branch_name": "fn-2-markdown-mermaid-chart-preview",
+  "created_at": "2026-06-28T05:12:03.183213Z",
+  "depends_on_epics": [],
+  "id": "fn-2-markdown-mermaid-chart-preview",
+  "next_task": 1,
+  "plan_review_status": "unknown",
+  "plan_reviewed_at": null,
+  "spec_path": ".flow/specs/fn-2-markdown-mermaid-chart-preview.md",
+  "status": "open",
+  "title": "Markdown Mermaid chart preview",
+  "updated_at": "2026-06-28T06:09:47.346851Z"
+}

@@ -3,6 +3,7 @@
 import { isValidElement, type ReactNode } from "react";
 
 import { ChatCodeBlock } from "./chat-code";
+import { isMermaidLanguage, MermaidCodeBlock } from "./mermaid-code";
 
 export function markdownCodeText(children?: ReactNode): string {
   if (children == null || typeof children === "boolean") return "";
@@ -26,10 +27,12 @@ export function markdownCodeText(children?: ReactNode): string {
 export function MarkdownCode({
   className,
   children,
+  enableMermaidPreview = false,
   ...rest
 }: {
   className?: string;
   children?: ReactNode;
+  enableMermaidPreview?: boolean;
 }) {
   const match = className?.match(/language-(\w+)/);
   if (!match) {
@@ -44,5 +47,9 @@ export function MarkdownCode({
   }
 
   const code = markdownCodeText(children).replace(/\n$/, "");
-  return <ChatCodeBlock code={code} lang={match[1] ?? null} />;
+  const lang = match[1] ?? null;
+  if (enableMermaidPreview && isMermaidLanguage(lang)) {
+    return <MermaidCodeBlock code={code} lang={lang} />;
+  }
+  return <ChatCodeBlock code={code} lang={lang} />;
 }
