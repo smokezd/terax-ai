@@ -56,11 +56,11 @@ export function getMermaidKeyboardZoomScale(
     return 1;
   }
 
-  if (key === "+" || key === "=") {
+  if (key === "+" || key === "=" || key === "in") {
     return clampMermaidFullscreenScale(currentScale * MERMAID_FULLSCREEN_ZOOM_STEP);
   }
 
-  if (key === "-") {
+  if (key === "-" || key === "out") {
     return clampMermaidFullscreenScale(currentScale / MERMAID_FULLSCREEN_ZOOM_STEP);
   }
 
