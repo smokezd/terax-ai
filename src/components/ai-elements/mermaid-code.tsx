@@ -124,14 +124,15 @@ export function getMermaidPointerAnchoredTransform(
   current: MermaidFullscreenTransform,
   nextScale: number,
   pointer: { x: number; y: number },
+  origin: { x: number; y: number } = { x: 0, y: 0 },
 ): MermaidFullscreenTransform {
   const scale = clampMermaidFullscreenScale(nextScale);
   const scaleRatio = scale / current.scale;
 
   return {
     scale,
-    x: pointer.x - (pointer.x - current.x) * scaleRatio,
-    y: pointer.y - (pointer.y - current.y) * scaleRatio,
+    x: pointer.x - origin.x - (pointer.x - origin.x - current.x) * scaleRatio,
+    y: pointer.y - origin.y - (pointer.y - origin.y - current.y) * scaleRatio,
   };
 }
 
@@ -165,7 +166,7 @@ export function getMermaidFullscreenViewportClassName(): string {
 
 export function getMermaidFullscreenSvgClassName(): string {
   return cn(
-    "flex h-full w-full origin-center items-center justify-center",
+    "flex h-full w-full origin-top-left items-center justify-center",
     "[&_svg]:block [&_svg]:h-full [&_svg]:max-h-full [&_svg]:max-w-full [&_svg]:w-full",
   );
 }
@@ -466,10 +467,14 @@ function MermaidFullscreenDialog({
                     ? MERMAID_FULLSCREEN_ZOOM_STEP
                     : 1 / MERMAID_FULLSCREEN_ZOOM_STEP),
               );
+              const viewportRect = event.currentTarget.getBoundingClientRect();
               setTransform((current) =>
                 getMermaidPointerAnchoredTransform(current, nextScale, {
                   x: event.clientX,
                   y: event.clientY,
+                }, {
+                  x: viewportRect.left,
+                  y: viewportRect.top,
                 }),
               );
             }}

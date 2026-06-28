@@ -146,3 +146,14 @@ it("uses a true viewport fullscreen surface for Mermaid charts", () => {
   expect(svgClassName).toContain("[&_svg]:h-full");
   expect(svgClassName).toContain("[&_svg]:w-full");
 });
+
+it("keeps the fullscreen zoom anchor fixed when the transform origin is offset", () => {
+  expect(
+    getMermaidPointerAnchoredTransform(
+      { scale: 1, x: 10, y: 20 },
+      2,
+      { x: 150, y: 125 },
+      { x: 100, y: 100 },
+    ),
+  ).toEqual({ scale: 2, x: -30, y: 15 });
+});
