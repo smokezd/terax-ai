@@ -1,14 +1,36 @@
 import { cn } from "@/lib/utils";
 import type { MarkdownTab, Tab } from "@/modules/tabs";
-import { MarkdownPreviewPane } from "./MarkdownPreviewPane";
+import { useCallback, useRef } from "react";
+import {
+  MarkdownPreviewPane,
+  type MarkdownPreviewPaneHandle,
+} from "./MarkdownPreviewPane";
 
 type Props = {
   tabs: Tab[];
   activeId: number;
+  registerHandle?: (
+    id: number,
+    handle: MarkdownPreviewPaneHandle | null,
+  ) => void;
   onSetMarkdownView: (id: number, mode: "rendered" | "raw") => void;
 };
 
-export function MarkdownStack({ tabs, activeId, onSetMarkdownView }: Props) {
+export function MarkdownStack({
+  tabs,
+  activeId,
+  registerHandle,
+  onSetMarkdownView,
+}: Props) {
+  const handles = useRef(new Map<number, MarkdownPreviewPaneHandle | null>());
+  const setHandle = useCallback(
+    (id: number) => (handle: MarkdownPreviewPaneHandle | null) => {
+      if (handles.current.get(id) === handle) return;
+      handles.current.set(id, handle);
+      registerHandle?.(id, handle);
+    },
+    [registerHandle],
+  );
   const markdowns = tabs.filter(
     (t): t is MarkdownTab => t.kind === "markdown" && !t.cold,
   );
@@ -27,6 +49,7 @@ export function MarkdownStack({ tabs, activeId, onSetMarkdownView }: Props) {
             aria-hidden={!visible}
           >
             <MarkdownPreviewPane
+              ref={setHandle(t.id)}
               path={t.path}
               visible={visible}
               onSetView={(mode) => onSetMarkdownView(t.id, mode)}

@@ -10,6 +10,7 @@ import { TerminalStack } from "@/modules/terminal";
 type TerminalStackProps = ComponentProps<typeof TerminalStack>;
 type EditorStackProps = ComponentProps<typeof EditorStack>;
 type PreviewStackProps = ComponentProps<typeof PreviewStack>;
+type MarkdownStackProps = ComponentProps<typeof MarkdownStack>;
 type AiDiffStackProps = ComponentProps<typeof AiDiffStack>;
 type GitHistoryStackProps = ComponentProps<typeof GitHistoryStack>;
 
@@ -27,6 +28,7 @@ type Props = {
   onEditorCloseTab: EditorStackProps["onCloseTab"];
   registerPreviewHandle: PreviewStackProps["registerHandle"];
   onPreviewUrlChange: PreviewStackProps["onUrlChange"];
+  registerMarkdownHandle: MarkdownStackProps["registerHandle"];
   onAiDiffAccept: AiDiffStackProps["onAccept"];
   onAiDiffReject: AiDiffStackProps["onReject"];
   onOpenCommitFile: GitHistoryStackProps["onOpenCommitFile"];
@@ -58,6 +60,7 @@ export function WorkspaceSurface({
   onEditorCloseTab,
   registerPreviewHandle,
   onPreviewUrlChange,
+  registerMarkdownHandle,
   onAiDiffAccept,
   onAiDiffReject,
   onOpenCommitFile,
@@ -124,6 +127,7 @@ export function WorkspaceSurface({
         <MarkdownStack
           tabs={tabs}
           activeId={activeId}
+          registerHandle={registerMarkdownHandle}
           onSetMarkdownView={onSetMarkdownView}
         />
       </div>

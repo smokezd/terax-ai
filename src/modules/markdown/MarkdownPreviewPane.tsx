@@ -2,7 +2,14 @@ import { MarkdownCode } from "@/components/ai-elements/markdown-code";
 import { cn } from "@/lib/utils";
 import { currentWorkspaceEnv } from "@/modules/workspace";
 import { invoke } from "@tauri-apps/api/core";
-import { useEffect, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState,
+  type Ref,
+} from "react";
 import { Streamdown } from "streamdown";
 import { MarkdownLink } from "./MarkdownLink";
 import { MarkdownViewToggle } from "./MarkdownViewToggle";
@@ -22,7 +29,12 @@ type Status =
 type Props = {
   path: string;
   visible: boolean;
+  ref?: Ref<MarkdownPreviewPaneHandle>;
   onSetView: (mode: "rendered" | "raw") => void;
+};
+
+export type MarkdownPreviewPaneHandle = {
+  reload: () => void;
 };
 
 const components = {
@@ -32,18 +44,20 @@ const components = {
   ),
 };
 
-export function MarkdownPreviewPane({ path, visible, onSetView }: Props) {
+export function MarkdownPreviewPane({ path, visible, ref, onSetView }: Props) {
   const [status, setStatus] = useState<Status>({ kind: "loading" });
+  const requestIdRef = useRef(0);
 
-  useEffect(() => {
-    let cancelled = false;
+  const reload = useCallback(() => {
+    const requestId = requestIdRef.current + 1;
+    requestIdRef.current = requestId;
     setStatus({ kind: "loading" });
     invoke<ReadResult>("fs_read_file", {
       path,
       workspace: currentWorkspaceEnv(),
     })
       .then((res) => {
-        if (cancelled) return;
+        if (requestId !== requestIdRef.current) return;
         if (res.kind === "text") {
           setStatus({ kind: "ready", content: res.content });
         } else if (res.kind === "binary") {
@@ -53,12 +67,20 @@ export function MarkdownPreviewPane({ path, visible, onSetView }: Props) {
         }
       })
       .catch((e) => {
-        if (!cancelled) setStatus({ kind: "error", message: String(e) });
+        if (requestId === requestIdRef.current) {
+          setStatus({ kind: "error", message: String(e) });
+        }
       });
-    return () => {
-      cancelled = true;
-    };
   }, [path]);
+
+  useImperativeHandle(ref, () => ({ reload }), [reload]);
+
+  useEffect(() => {
+    reload();
+    return () => {
+      requestIdRef.current += 1;
+    };
+  }, [reload]);
 
   return (
     <div

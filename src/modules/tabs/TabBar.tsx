@@ -40,6 +40,7 @@ import {
   IncognitoIcon,
   Message02Icon,
   PencilEdit02Icon,
+  Refresh01Icon,
   Tick02Icon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
@@ -71,6 +72,7 @@ type Props = {
   onCloseTabsToRight: (id: number) => void;
   /** Chrome-style: close every tab except the given tab. */
   onCloseOtherTabs: (id: number) => void;
+  onRefresh: (id: number) => void;
   /** Pin (promote) a preview tab to persistent on double-click. */
   onPin: (id: number) => void;
   /** Set a terminal tab's custom label; empty string resets to default. */
@@ -92,6 +94,7 @@ export function TabBar({
   onNewEditor,
   onNewGitGraph,
   onLaunchAgents,
+  onRefresh,
   onClose,
   onCloseTabsToRight,
   onCloseOtherTabs,
@@ -515,6 +518,19 @@ export function TabBar({
                     className="min-w-32 p-1"
                     onCloseAutoFocus={(e) => e.preventDefault()}
                   >
+                    {t.kind !== "terminal" && (
+                      <ContextMenuItem
+                        className="gap-2 rounded-xl px-2.5 py-1.5 text-[13px]"
+                        onSelect={() => onRefresh(t.id)}
+                      >
+                        <HugeiconsIcon
+                          icon={Refresh01Icon}
+                          size={13}
+                          strokeWidth={1.75}
+                        />
+                        <span className="flex-1">Refresh</span>
+                      </ContextMenuItem>
+                    )}
                     {t.kind === "terminal" && (
                       <>
                         <ContextMenuItem
