@@ -31,6 +31,7 @@ import {
   getMarkdownLinkDefaultOrigin,
   resolveMarkdownLinkTarget,
 } from "./markdownLinkNavigation";
+import { MARKDOWN_LINK_CLASS_NAME } from "./markdownLinkPresentation";
 import { MarkdownViewToggle } from "./MarkdownViewToggle";
 
 type ReadResult =
@@ -78,6 +79,7 @@ function MarkdownLink({
         <a
           {...props}
           href={href}
+          className={cn(MARKDOWN_LINK_CLASS_NAME, props.className)}
           onClick={(event) => {
             onClick?.(event);
             if (event.defaultPrevented) return;

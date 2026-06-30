@@ -1,5 +1,7 @@
 # Terax Workspace Glossary
 
+**Markdown link emphasis**: The visual treatment that makes rendered Markdown links distinguishable from surrounding prose. Links should use the app accent color, a visible underline, and clear hover/focus states while keeping the link confirmation modal behavior unchanged.
+
 **Refresh**: Reload a single tab's own content source. Refreshing a Markdown tab re-reads its file from disk; refreshing an editor tab re-reads through the editor document reload path; refreshing a preview tab reloads that preview surface. Refresh must not reload the whole application window or restart shells in other tabs.
 
 **Global reload**: Reloading the application UI/window. This is distinct from Refresh and is not a tab header action.
