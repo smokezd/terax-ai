@@ -13,6 +13,7 @@ type Props = {
     id: number,
     handle: MarkdownPreviewPaneHandle | null,
   ) => void;
+  onOpenPath: (path: string) => void;
   onSetMarkdownView: (id: number, mode: "rendered" | "raw") => void;
 };
 
@@ -20,6 +21,7 @@ export function MarkdownStack({
   tabs,
   activeId,
   registerHandle,
+  onOpenPath,
   onSetMarkdownView,
 }: Props) {
   const handles = useRef(new Map<number, MarkdownPreviewPaneHandle | null>());
@@ -52,6 +54,7 @@ export function MarkdownStack({
               ref={setHandle(t.id)}
               path={t.path}
               visible={visible}
+              onOpenPath={onOpenPath}
               onSetView={(mode) => onSetMarkdownView(t.id, mode)}
             />
           </div>

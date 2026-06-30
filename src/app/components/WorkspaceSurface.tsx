@@ -29,6 +29,7 @@ type Props = {
   registerPreviewHandle: PreviewStackProps["registerHandle"];
   onPreviewUrlChange: PreviewStackProps["onUrlChange"];
   registerMarkdownHandle: MarkdownStackProps["registerHandle"];
+  onOpenPath: MarkdownStackProps["onOpenPath"];
   onAiDiffAccept: AiDiffStackProps["onAccept"];
   onAiDiffReject: AiDiffStackProps["onReject"];
   onOpenCommitFile: GitHistoryStackProps["onOpenCommitFile"];
@@ -61,6 +62,7 @@ export function WorkspaceSurface({
   registerPreviewHandle,
   onPreviewUrlChange,
   registerMarkdownHandle,
+  onOpenPath,
   onAiDiffAccept,
   onAiDiffReject,
   onOpenCommitFile,
@@ -128,6 +130,7 @@ export function WorkspaceSurface({
           tabs={tabs}
           activeId={activeId}
           registerHandle={registerMarkdownHandle}
+          onOpenPath={onOpenPath}
           onSetMarkdownView={onSetMarkdownView}
         />
       </div>

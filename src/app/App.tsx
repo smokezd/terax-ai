@@ -461,7 +461,6 @@ export default function App() {
     }
   }, []);
 
-
   const { pendingAppClose, confirmAppClose, cancelAppClose } =
     useAppCloseGuard(tabsRef);
 
@@ -1539,6 +1538,7 @@ export default function App() {
                         onAiDiffReject={(id) => respondToApproval(id, false)}
                         onOpenCommitFile={openCommitFileDiffTab}
                         onGitHistorySearchHandle={setGitHistoryHandle}
+                        onOpenPath={handleOpenFile}
                         onSetMarkdownView={setMarkdownView}
                       />
                     </div>
