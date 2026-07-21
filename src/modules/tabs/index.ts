@@ -25,5 +25,6 @@ export {
   type AiDiffStatus,
   type TabPatch,
 } from "./lib/useTabs";
+export { leafExitAction, type LeafExitAction } from "./lib/leafExitAction";
 export { useWorkspaceCwd } from "./lib/useWorkspaceCwd";
 export { useWindowTitle } from "./lib/useWindowTitle";

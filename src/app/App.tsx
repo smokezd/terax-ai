@@ -75,6 +75,7 @@ import {
 } from "@/modules/spaces";
 import { StatusBar } from "@/modules/statusbar";
 import {
+  leafExitAction,
   TabSwitcherHud,
   type CloseTabsPlan,
   useTabSwitcher,
@@ -89,10 +90,12 @@ import {
   findLeafCwd,
   hasLeaf,
   isTerminalSurfaceTarget,
+  leafCwd,
   leafIds,
   navigateFocusedBlocks,
   type PaneBounds,
   ptyIdForLeaf,
+  respawnSession,
   type TerminalPaneHandle,
   useAgentActivityStore,
   useTerminalFileDrop,
@@ -1132,11 +1135,20 @@ export default function App() {
         (t) => t.kind === "terminal" && hasLeaf(t.paneTree, leafId),
       );
       if (!tab || tab.kind !== "terminal") return;
-      // Last pane of the last tab: quit instead of respawning a shell.
-      if (leafIds(tab.paneTree).length === 1 && all.length === 1) {
-        void getCurrentWindow().close();
-      } else {
-        closePaneByLeaf(leafId);
+      switch (leafExitAction(all, tab)) {
+        // Last pane of the last tab app-wide: quit instead of respawning.
+        case "quit":
+          void getCurrentWindow().close();
+          break;
+        // Last tab of its space (which must keep >=1 tab): removing it would
+        // freeze the pane, so start a fresh shell in place instead. Reopen in
+        // the shell's last cwd rather than the tab's original spawn dir.
+        case "respawn":
+          void respawnSession(leafId, leafCwd(leafId) ?? undefined);
+          break;
+        case "close-pane":
+          closePaneByLeaf(leafId);
+          break;
       }
     },
     [closePaneByLeaf],
