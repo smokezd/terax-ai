@@ -1,3 +1,5 @@
+import { isExternalUrl } from "@/lib/external-link";
+
 export type MarkdownLinkTarget =
   | { kind: "external"; href: string }
   | { kind: "file"; path: string }
@@ -100,7 +102,10 @@ export async function resolveMarkdownLinkTarget({
       : { kind: "unresolved", href };
   }
 
-  if (SCHEME_RE.test(target)) return { kind: "external", href: target };
+  if (isExternalUrl(target)) return { kind: "external", href: target };
+  // Any other scheme (javascript:, data:, custom app schemes) is never handed
+  // to the system opener.
+  if (SCHEME_RE.test(target)) return { kind: "unresolved", href };
 
   const relativePath = decodeURIComponent(stripFragmentAndQuery(target));
   const candidates = [

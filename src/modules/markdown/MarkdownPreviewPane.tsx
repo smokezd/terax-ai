@@ -10,10 +10,10 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { openExternalUrl } from "@/lib/external-link";
 import { cn } from "@/lib/utils";
 import { currentWorkspaceEnv } from "@/modules/workspace";
 import { invoke } from "@tauri-apps/api/core";
-import { openUrl } from "@tauri-apps/plugin-opener";
 import {
   useCallback,
   useEffect,
@@ -146,7 +146,7 @@ export function MarkdownPreviewPane({
       });
 
       if (target.kind === "external") {
-        await openUrl(target.href);
+        await openExternalUrl(target.href);
         return;
       }
 

@@ -29,6 +29,20 @@ describe("resolveMarkdownLinkTarget", () => {
     });
   });
 
+  it("refuses to hand non-web schemes to the system handler", async () => {
+    await expect(
+      resolveMarkdownLinkTarget({
+        href: "javascript:alert(1)",
+        markdownPath: "/workspace/docs/readme.md",
+        workspaceRoot: "/workspace",
+        exists,
+      }),
+    ).resolves.toEqual({
+      kind: "unresolved",
+      href: "javascript:alert(1)",
+    });
+  });
+
   it("opens file URLs in the editor, including outside the workspace", async () => {
     await expect(
       resolveMarkdownLinkTarget({
