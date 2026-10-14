@@ -1,3 +1,4 @@
+import { registerInstalledFonts } from "@/lib/fonts";
 import { readTerminalTokens } from "@/styles/tokens";
 import type { Rgb } from "../core/packedCells";
 
@@ -33,7 +34,16 @@ let colorContext: CanvasRenderingContext2D | null = null;
 export async function measureTerminalFont(
   font: TerminalFontSpec,
 ): Promise<TerminalFontMetrics> {
-  await document.fonts.load(fontCss(font, false, false)).catch(() => undefined);
+  await registerInstalledFonts(font.family);
+  // The glyph atlas rasterizes synchronously and caches the result, so a bold
+  // or italic face still loading at first use would stay cached as fallback.
+  await Promise.all(
+    [false, true].flatMap((bold) =>
+      [false, true].map((italic) =>
+        document.fonts.load(fontCss(font, bold, italic)).catch(() => undefined),
+      ),
+    ),
+  );
   const canvas = document.createElement("canvas");
   const context = canvas.getContext("2d");
   if (!context) throw new Error("Canvas font measurement is unavailable");

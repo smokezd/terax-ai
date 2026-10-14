@@ -76,8 +76,13 @@ the first pointermove. Unmoved clicks and lost captures discard provisional pins
 Key encoding supplies the base character required by Kitty keyboard mode; plain
 keys and key releases also use Ghostty encoding when the application requests it.
 Terminal text uses the configured font, an installed Nerd Font when detected,
-or bundled JetBrains Mono. Private-use prompt symbols require an installed font
-that supplies them; Terax does not ship a separate symbol font. Native color
+or bundled JetBrains Mono. WKWebView hides user-installed fonts from page
+content, so on macOS each configured family is looked up once per window in
+`~/Library/Fonts` and `/Library/Fonts` (`fonts_installed_families`) and its files
+are registered as document `FontFace`s over the asset protocol; nothing is
+looked up for the default chain. Regular, bold and italic faces load before
+measurement. Private-use symbols require an installed font that supplies them,
+listed in the configured family stack; Terax does not ship a separate symbol font. Native color
 emoji remain on the system fallback path. Rerun requires the complete command
 submitted through Terax; truncated shell labels are never executed.
 Primary-screen full erase, scrollback erase, and terminal reset invalidate block

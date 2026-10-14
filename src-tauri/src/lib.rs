@@ -3,7 +3,7 @@ pub mod modules;
 #[cfg(target_os = "macos")]
 use modules::app_menu;
 use modules::{
-    agent, control, fs, git, history, lsp, net, pty, secrets, shell, vibrancy, workspace,
+    agent, control, fonts, fs, git, history, lsp, net, pty, secrets, shell, vibrancy, workspace,
 };
 use std::path::PathBuf;
 use std::sync::Mutex;
@@ -251,6 +251,7 @@ pub fn run() {
         .manage(LaunchDir(Mutex::new(cli_dir)))
         .manage(LaunchFiles(Mutex::new(launch.files)))
         .invoke_handler(tauri::generate_handler![
+            fonts::fonts_installed_families,
             pty::pty_open,
             pty::pty_write,
             pty::pty_ack_output,
